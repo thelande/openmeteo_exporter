@@ -32,7 +32,7 @@ jobs:
         context: .
         push: true
         platforms: linux/amd64,linux/arm64
-        tags: thelande/openmeteo_exporter:${{ github.ref_name }}
+        tags: thelande/openmeteo_exporter:${{ github.ref_name }},thelande/openmeteo_exporter:latest
   
   build-windows:
     runs-on: windows-2022
