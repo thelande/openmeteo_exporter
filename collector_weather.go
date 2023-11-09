@@ -48,11 +48,15 @@ func (c WeatherCollector) Collect(ch chan<- prometheus.Metric) {
 			nil,
 		)
 
-		ch <- prometheus.MustNewConstMetric(
-			desc,
-			prometheus.GaugeValue,
-			float64(weatherResp.Current.Variables[name].(float64)),
-			c.Location.Name,
-		)
+		if value := weatherResp.Current.Variables[name]; value != nil {
+			ch <- prometheus.MustNewConstMetric(
+				desc,
+				prometheus.GaugeValue,
+				float64(value.(float64)),
+				c.Location.Name,
+			)
+		} else {
+			level.Warn(logger).Log("msg", "No value for metric returned", "name", name)
+		}
 	}
 }
