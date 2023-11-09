@@ -20,9 +20,15 @@ openmeteo_exporter: *.go
 	$(PROMU) build -v
 
 fmt:
+	@echo ">> Running fmt"
 	gofmt -l -w -s .
 
 crossbuild: promu
+	@echo ">> Running crossbuild"
 	GOARCH=amd64 $(PROMU) build --prefix=output/amd64
 	GOARCH=arm64 $(PROMU) build --prefix=output/arm64
 	GOARCH=arm   $(PROMU) build --prefix=output/arm
+
+clean:
+	@echo ">> Running clean"
+	rm -rf openmeteo_exporter output

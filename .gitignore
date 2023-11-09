@@ -1,2 +1,3 @@
 openmeteo_exporter
 config.yaml
+output/**
