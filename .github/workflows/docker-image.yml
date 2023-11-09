@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Build
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build-docker-linux:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -30,3 +30,29 @@ jobs:
         push: true
         platforms: linux/amd64,linux/arm64
         tags: thelande/openmeteo_exporter:latest
+  
+  build-windows:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '^1.21.3'
+      
+      - name: Build
+        env:
+          GOOS: windows
+          GOARCH: amd64
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          go build -o openmeteo_exporter.exe .
+      
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: openmeteo_exporter_binaries
+          path: openmeteo_exporter.exe
