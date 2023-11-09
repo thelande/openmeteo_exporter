@@ -38,6 +38,10 @@ var (
 		"config.file",
 		"Path to configuration file.",
 	).Default("config.yaml").String()
+	metricsPath = kingpin.Flag(
+		"web.telemetry-path",
+		"Path under which to expose metrics.",
+	).Default("/metrics").String()
 	listVariables = kingpin.Flag(
 		"variables.list",
 		"List the variables available for querying and then exit.",
@@ -56,6 +60,7 @@ func main() {
 
 	logger = promlog.New(promlogConfig)
 	level.Info(logger).Log("msg", "Starting openmeteo_exporter", "version", version.Info())
+	level.Info(logger).Log("msg", "Build context", "build_context", version.BuildContext())
 
 	// User requested we list the available variables.
 	if *listVariables != "" {
@@ -94,31 +99,26 @@ func main() {
 	// Use a custom handler to avoid generating the go_collector metrics.
 	registry := prometheus.NewRegistry()
 	registry.MustRegister(collector)
-	http.Handle("/metrics", promhttp.HandlerFor(registry, promhttp.HandlerOpts{}))
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		_, _ = w.Write([]byte(`<html>
-            <head>
-            <title>Open-Meteo Exporter</title>
-            <style>
-            label{
-            display:inline-block;
-            width:75px;
-            }
-            form label {
-            margin: 10px;
-            }
-            form input {
-            margin: 10px;
-            }
-            </style>
-            </head>
-            <body>
-            <h1>Open-Meteo Exporter</h1>
-			<p><a href="/metrics">Metrics</a></p>
-            </body>
-            </html>`))
-	})
+	landingConfig := web.LandingConfig{
+		Name:        "Open-Meteo Exporter",
+		Description: "Prometheus Open-Meteo Exporter",
+		Version:     version.Info(),
+		Links: []web.LandingLinks{
+			{
+				Address: *metricsPath,
+				Text:    "Metrics",
+			},
+		},
+	}
+	landingPage, err := web.NewLandingPage(landingConfig)
+	if err != nil {
+		level.Error(logger).Log("err", err)
+		os.Exit(1)
+	}
+
+	http.Handle(*metricsPath, promhttp.HandlerFor(registry, promhttp.HandlerOpts{}))
+	http.Handle("/", landingPage)
 
 	srv := &http.Server{}
 	if err := web.ListenAndServe(srv, webConfig, logger); err != nil {
