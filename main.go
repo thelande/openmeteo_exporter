@@ -43,7 +43,7 @@ func main() {
 	level.Info(logger).Log("msg", "Starting openmeteo_exporter", "version", version.Info())
 
 	// User requested we list the available variables.
-	if listVariables != nil {
+	if *listVariables != "" {
 		table := tablewriter.NewWriter(os.Stdout)
 		table.SetHeader([]string{"Name", "Description"})
 		table.SetRowLine(true)
