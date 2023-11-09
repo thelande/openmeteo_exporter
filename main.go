@@ -1,12 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
 	kingpin "github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
+	"github.com/olekukonko/tablewriter"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/promlog"
@@ -21,6 +23,10 @@ var (
 		"config.file",
 		"Path to configuration file.",
 	).Default("config.yaml").String()
+	listVariables = kingpin.Flag(
+		"variables.list",
+		"List the variables available for querying and then exit.",
+	).Enum("weather", "airquality")
 	webConfig = webflag.AddFlags(kingpin.CommandLine, ":9812")
 	logger    log.Logger
 )
@@ -35,6 +41,32 @@ func main() {
 
 	logger = promlog.New(promlogConfig)
 	level.Info(logger).Log("msg", "Starting openmeteo_exporter", "version", version.Info())
+
+	// User requested we list the available variables.
+	if listVariables != nil {
+		table := tablewriter.NewWriter(os.Stdout)
+		table.SetHeader([]string{"Name", "Description"})
+		table.SetRowLine(true)
+		table.SetColWidth(80)
+
+		var vars map[string]string
+		var title string
+		if *listVariables == "weather" {
+			title = "Weather Variables"
+			vars = WeatherVariables
+		} else {
+			title = "Air Quality Variables"
+			vars = AirQualityVariables
+		}
+
+		fmt.Println(title)
+		for name, desc := range vars {
+			table.Append([]string{name, desc})
+		}
+		table.Render()
+
+		os.Exit(0)
+	}
 
 	var config Config
 	if err := config.ReloadConfig(*configFile); err != nil {

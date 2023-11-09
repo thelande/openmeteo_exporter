@@ -20,7 +20,7 @@ const (
 // Mapping of variable name to description. Used to validate the list of
 // requests variables as well as provide descriptions for the metrics.
 var (
-	weatherVariables = map[string]string{
+	WeatherVariables = map[string]string{
 		"temperature_2m":             "Air temperature at 2 meters above ground",
 		"relative_humidity_2m":       "Relative humidity at 2 meters above ground",
 		"dew_point_2m":               "Dew point temperature at 2 meters above ground",
@@ -68,7 +68,7 @@ var (
 		"soil_moisture_27_to_81cm":   "Average soil water content as volumetric mixing ratio at 27-81 cm depths.",
 		"is_day":                     "1 if the current time step has daylight, 0 at night.",
 	}
-	airqualityVariables = map[string]string{
+	AirQualityVariables = map[string]string{
 		"pm2_5":                         "Particulate matter with diameter smaller than 2.5 µm (PM2.5) close to surface (10 meter above ground)",
 		"pm10":                          "Particulate matter with diameter smaller than 10 µm (PM10) close to surface (10 meter above ground)",
 		"carbon_monoxide":               "Carbon monoxide close to surface (10 meter above ground)",
@@ -137,9 +137,9 @@ func GetVariableDesc(category, name string) (string, error) {
 	var val string
 	var ok bool
 	if category == "weather" {
-		val, ok = weatherVariables[name]
+		val, ok = WeatherVariables[name]
 	} else {
-		val, ok = airqualityVariables[name]
+		val, ok = AirQualityVariables[name]
 	}
 
 	if !ok {
