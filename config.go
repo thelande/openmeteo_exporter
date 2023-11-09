@@ -118,11 +118,11 @@ func (l *LocationConfig) Validate() error {
 
 func (w *WeatherConfig) Validate(l *LocationConfig) error {
 	if len(w.Variables) == 0 {
-		return fmt.Errorf("invalid weather config, no entries for current, daily, or hourly: %s", l.Name)
+		return fmt.Errorf("invalid weather config, no entries for variables: %s", l.Name)
 	}
 
 	for _, name := range w.Variables {
-		if !IsValidVariable(name) {
+		if !IsValidVariable("weather", name) {
 			return fmt.Errorf("invalid current weather variable, %s, for location: %s", name, l.Name)
 		}
 	}
@@ -155,5 +155,15 @@ func (w *WeatherConfig) Validate(l *LocationConfig) error {
 }
 
 func (a *AirQualityConfig) Validate(l *LocationConfig) error {
+	if len(a.Variables) == 0 {
+		return fmt.Errorf("invalid air quality config, no entries for variables: %s", l.Name)
+	}
+
+	for _, name := range a.Variables {
+		if !IsValidVariable("airquality", name) {
+			return fmt.Errorf("invalid current air quality variable, %s, for location: %s", name, l.Name)
+		}
+	}
+
 	return nil
 }

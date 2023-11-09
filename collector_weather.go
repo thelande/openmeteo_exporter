@@ -13,7 +13,6 @@ type WeatherCollector struct {
 }
 
 func (c WeatherCollector) Collect(ch chan<- prometheus.Metric) {
-
 	weatherResp, err := c.Client.GetWeather(c.Location)
 	if err != nil {
 		level.Warn(logger).Log(
@@ -25,7 +24,7 @@ func (c WeatherCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	ch <- prometheus.MustNewConstMetric(
-		generationTimeDesc,
+		weatherGenerationTimeDesc,
 		prometheus.GaugeValue,
 		float64(weatherResp.GenerationtimeMs),
 		c.Location.Name,
@@ -41,7 +40,7 @@ func (c WeatherCollector) Collect(ch chan<- prometheus.Metric) {
 			units = "percent"
 		}
 
-		description, _ := GetVariableDesc(name)
+		description, _ := GetVariableDesc("weather", name)
 		desc := prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "weather", fmt.Sprintf("%s_%s", name, units)),
 			description,

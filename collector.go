@@ -16,8 +16,15 @@ var (
 		nil,
 	)
 
-	generationTimeDesc = prometheus.NewDesc(
+	weatherGenerationTimeDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "weather", "generation_time_ms"),
+		"The time it took to generate the response, in milliseconds.",
+		[]string{"location"},
+		nil,
+	)
+
+	airqualityGenerationTimeDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "airquality", "generation_time_ms"),
 		"The time it took to generate the response, in milliseconds.",
 		[]string{"location"},
 		nil,
@@ -31,7 +38,7 @@ type OpenMeteoCollector struct {
 
 func (c OpenMeteoCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- infoDesc
-	ch <- generationTimeDesc
+	ch <- weatherGenerationTimeDesc
 }
 
 func (c OpenMeteoCollector) Collect(ch chan<- prometheus.Metric) {
@@ -46,7 +53,14 @@ func (c OpenMeteoCollector) Collect(ch chan<- prometheus.Metric) {
 			loc.Timezone,
 		)
 
-		weatherCollector := WeatherCollector{Client: c.Client, Location: &loc}
-		weatherCollector.Collect(ch)
+		if loc.Weather != nil {
+			weatherCollector := WeatherCollector{Client: c.Client, Location: &loc}
+			weatherCollector.Collect(ch)
+		}
+
+		if loc.AirQuality != nil {
+			airqualityCollector := AirQualityCollector{Client: c.Client, Location: &loc}
+			airqualityCollector.Collect(ch)
+		}
 	}
 }

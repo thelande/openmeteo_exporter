@@ -12,7 +12,10 @@ import (
 	"github.com/go-kit/log/level"
 )
 
-const baseApi = "https://api.open-meteo.com/v1"
+const (
+	weatherApi    = "https://api.open-meteo.com/v1/forecast"
+	airqualityApi = "https://air-quality-api.open-meteo.com/v1/air-quality"
+)
 
 // Mapping of variable name to description. Used to validate the list of
 // requests variables as well as provide descriptions for the metrics.
@@ -65,6 +68,38 @@ var (
 		"soil_moisture_27_to_81cm":   "Average soil water content as volumetric mixing ratio at 27-81 cm depths.",
 		"is_day":                     "1 if the current time step has daylight, 0 at night.",
 	}
+	airqualityVariables = map[string]string{
+		"pm2_5":                         "Particulate matter with diameter smaller than 2.5 µm (PM2.5) close to surface (10 meter above ground)",
+		"pm10":                          "Particulate matter with diameter smaller than 10 µm (PM10) close to surface (10 meter above ground)",
+		"carbon_monoxide":               "Carbon monoxide close to surface (10 meter above ground)",
+		"nitrogen_dioxide":              "Nitrogen dioxide close to surface (10 meter above ground)",
+		"sulphur_dioxide":               "Sulphur dioxide close to surface (10 meter above ground)",
+		"ozone":                         "Ozone close to surface (10 meter above ground)",
+		"ammonia":                       "Ammonia concentration. Only available for Europe.",
+		"aerosol_optical_depth":         "Aerosol optical depth at 550 nm of the entire atmosphere to indicate haze.",
+		"dust":                          "Saharan dust particles close to surface level (10 meter above ground).",
+		"uv_index":                      "UV index considering clouds. See ECMWF UV Index recommendation for more information",
+		"uv_index_clear_sky":            "UV index considering clear sky. See ECMWF UV Index recommendation for more information",
+		"alder_pollen":                  "Pollen for various plants. Only available in Europe as provided by CAMS European Air Quality forecast.",
+		"birch_pollen":                  "Pollen for various plants. Only available in Europe as provided by CAMS European Air Quality forecast.",
+		"grass_pollen":                  "Pollen for various plants. Only available in Europe as provided by CAMS European Air Quality forecast.",
+		"mugwort_pollen":                "Pollen for various plants. Only available in Europe as provided by CAMS European Air Quality forecast.",
+		"olive_pollen":                  "Pollen for various plants. Only available in Europe as provided by CAMS European Air Quality forecast.",
+		"ragweed_pollen":                "Pollen for various plants. Only available in Europe as provided by CAMS European Air Quality forecast.",
+		"european_aqi":                  "European Air Quality Index (AQI) calculated for different particulate matter and gases individually. The consolidated european_aqi returns the maximum of all individual indices. Ranges from 0-20 (good), 20-40 (fair), 40-60 (moderate), 60-80 (poor), 80-100 (very poor) and exceeds 100 for extremely poor conditions.",
+		"european_aqi_pm2_5":            "European Air Quality Index (AQI) calculated for different particulate matter and gases individually. The consolidated european_aqi returns the maximum of all individual indices. Ranges from 0-20 (good), 20-40 (fair), 40-60 (moderate), 60-80 (poor), 80-100 (very poor) and exceeds 100 for extremely poor conditions.",
+		"european_aqi_pm10":             "European Air Quality Index (AQI) calculated for different particulate matter and gases individually. The consolidated european_aqi returns the maximum of all individual indices. Ranges from 0-20 (good), 20-40 (fair), 40-60 (moderate), 60-80 (poor), 80-100 (very poor) and exceeds 100 for extremely poor conditions.",
+		"european_aqi_nitrogen_dioxide": "European Air Quality Index (AQI) calculated for different particulate matter and gases individually. The consolidated european_aqi returns the maximum of all individual indices. Ranges from 0-20 (good), 20-40 (fair), 40-60 (moderate), 60-80 (poor), 80-100 (very poor) and exceeds 100 for extremely poor conditions.",
+		"european_aqi_ozone":            "European Air Quality Index (AQI) calculated for different particulate matter and gases individually. The consolidated european_aqi returns the maximum of all individual indices. Ranges from 0-20 (good), 20-40 (fair), 40-60 (moderate), 60-80 (poor), 80-100 (very poor) and exceeds 100 for extremely poor conditions.",
+		"european_aqi_sulphur_dioxide":  "European Air Quality Index (AQI) calculated for different particulate matter and gases individually. The consolidated european_aqi returns the maximum of all individual indices. Ranges from 0-20 (good), 20-40 (fair), 40-60 (moderate), 60-80 (poor), 80-100 (very poor) and exceeds 100 for extremely poor conditions.",
+		"us_aqi":                        "United States Air Quality Index (AQI) calculated for different particulate matter and gases individually. The consolidated us_aqi returns the maximum of all individual indices. Ranges from 0-50 (good), 51-100 (moderate), 101-150 (unhealthy for sensitive groups), 151-200 (unhealthy), 201-300 (very unhealthy) and 301-500 (hazardous).",
+		"us_aqi_pm2_5":                  "United States Air Quality Index (AQI) calculated for different particulate matter and gases individually. The consolidated us_aqi returns the maximum of all individual indices. Ranges from 0-50 (good), 51-100 (moderate), 101-150 (unhealthy for sensitive groups), 151-200 (unhealthy), 201-300 (very unhealthy) and 301-500 (hazardous).",
+		"us_aqi_pm10":                   "United States Air Quality Index (AQI) calculated for different particulate matter and gases individually. The consolidated us_aqi returns the maximum of all individual indices. Ranges from 0-50 (good), 51-100 (moderate), 101-150 (unhealthy for sensitive groups), 151-200 (unhealthy), 201-300 (very unhealthy) and 301-500 (hazardous).",
+		"us_aqi_nitrogen_dioxide":       "United States Air Quality Index (AQI) calculated for different particulate matter and gases individually. The consolidated us_aqi returns the maximum of all individual indices. Ranges from 0-50 (good), 51-100 (moderate), 101-150 (unhealthy for sensitive groups), 151-200 (unhealthy), 201-300 (very unhealthy) and 301-500 (hazardous).",
+		"us_aqi_ozone":                  "United States Air Quality Index (AQI) calculated for different particulate matter and gases individually. The consolidated us_aqi returns the maximum of all individual indices. Ranges from 0-50 (good), 51-100 (moderate), 101-150 (unhealthy for sensitive groups), 151-200 (unhealthy), 201-300 (very unhealthy) and 301-500 (hazardous).",
+		"us_aqi_sulphur_dioxide":        "United States Air Quality Index (AQI) calculated for different particulate matter and gases individually. The consolidated us_aqi returns the maximum of all individual indices. Ranges from 0-50 (good), 51-100 (moderate), 101-150 (unhealthy for sensitive groups), 151-200 (unhealthy), 201-300 (very unhealthy) and 301-500 (hazardous).",
+		"us_aqi_carbon_monoxide":        "United States Air Quality Index (AQI) calculated for different particulate matter and gases individually. The consolidated us_aqi returns the maximum of all individual indices. Ranges from 0-50 (good), 51-100 (moderate), 101-150 (unhealthy for sensitive groups), 151-200 (unhealthy), 201-300 (very unhealthy) and 301-500 (hazardous).",
+	}
 	ValidTemperatureUnits   = []string{"fahrenheit", "celsius"}
 	ValidWindSpeedUnits     = []string{"kph", "mph", "ms", "kn"}
 	ValidPrecipitationUnits = []string{"mm", "inch"}
@@ -98,16 +133,23 @@ type WeatherResponse struct {
 	Elevation float64 `json:"elevation"`
 }
 
-func GetVariableDesc(name string) (string, error) {
-	val, ok := weatherVariables[name]
+func GetVariableDesc(category, name string) (string, error) {
+	var val string
+	var ok bool
+	if category == "weather" {
+		val, ok = weatherVariables[name]
+	} else {
+		val, ok = airqualityVariables[name]
+	}
+
 	if !ok {
 		return "", fmt.Errorf("invalid variable name: %s", name)
 	}
 	return val, nil
 }
 
-func IsValidVariable(name string) bool {
-	if _, err := GetVariableDesc(name); err != nil {
+func IsValidVariable(category, name string) bool {
+	if _, err := GetVariableDesc(category, name); err != nil {
 		return false
 	}
 	return true
@@ -115,15 +157,7 @@ func IsValidVariable(name string) bool {
 
 type OpenMeteoClient struct{}
 
-func (c OpenMeteoClient) doRequest(path string, values *url.Values) ([]byte, error) {
-	url, err := url.Parse(fmt.Sprintf("%s/%s", baseApi, path))
-	if err != nil {
-		level.Error(logger).Log("msg", "Failed to form response URL", "err", err)
-		return nil, err
-	}
-	url.RawQuery = values.Encode()
-
-	fullUrl := url.String()
+func (c OpenMeteoClient) doRequest(fullUrl string, values *url.Values) ([]byte, error) {
 	level.Debug(logger).Log("url", fullUrl)
 	resp, err := http.Get(fullUrl)
 	if err != nil {
@@ -141,23 +175,34 @@ func (c OpenMeteoClient) doRequest(path string, values *url.Values) ([]byte, err
 	return body, nil
 }
 
-func (c OpenMeteoClient) GetWeather(l *LocationConfig) (*WeatherResponse, error) {
-	path := "forecast"
+func buildBaseValues(loc *LocationConfig, vars []string) *url.Values {
 	values := &url.Values{}
+	values.Add("latitude", fmt.Sprintf("%f", loc.Latitude))
+	values.Add("longitude", fmt.Sprintf("%f", loc.Longitude))
 
-	values.Add("latitude", fmt.Sprintf("%f", l.Latitude))
-	values.Add("longitude", fmt.Sprintf("%f", l.Longitude))
+	var current []string
+	current = append(current, vars...)
+
+	values.Add("current", strings.Join(current, ","))
+
+	return values
+}
+
+func (c OpenMeteoClient) GetWeather(l *LocationConfig) (*WeatherResponse, error) {
+	url, err := url.Parse(weatherApi)
+	if err != nil {
+		level.Error(logger).Log("msg", "Failed to form response URL", "err", err)
+		return nil, err
+	}
+
+	values := buildBaseValues(l, l.Weather.Variables)
 	values.Add("timezone", l.Timezone)
 	values.Add("temperature_unit", l.Weather.TemperatureUnit)
 	values.Add("wind_speed_unit", l.Weather.WindSpeedUnit)
 	values.Add("precipitation_unit", l.Weather.PrecipitationUnit)
+	url.RawQuery = values.Encode()
 
-	var current []string
-	current = append(current, l.Weather.Variables...)
-
-	values.Add("current", strings.Join(current, ","))
-
-	body, err := c.doRequest(path, values)
+	body, err := c.doRequest(url.String(), values)
 	if err != nil {
 		return nil, err
 	}
@@ -190,6 +235,44 @@ func (c OpenMeteoClient) GetWeather(l *LocationConfig) (*WeatherResponse, error)
 	return &resp, nil
 }
 
-func (c OpenMeteoClient) GetAirQuality() error {
-	return nil
+func (c OpenMeteoClient) GetAirQuality(l *LocationConfig) (*BaseResponse, error) {
+	url, err := url.Parse(airqualityApi)
+	if err != nil {
+		level.Error(logger).Log("msg", "Failed to form response URL", "err", err)
+		return nil, err
+	}
+	values := buildBaseValues(l, l.AirQuality.Variables)
+	url.RawQuery = values.Encode()
+
+	body, err := c.doRequest(url.String(), values)
+	if err != nil {
+		return nil, err
+	}
+
+	level.Debug(logger).Log("body", string(body))
+
+	var bareResp map[string]interface{}
+	if err = json.Unmarshal(body, &bareResp); err != nil {
+		return nil, err
+	}
+
+	resp := BaseResponse{}
+	if err = json.Unmarshal(body, &resp); err != nil {
+		return nil, err
+	}
+
+	resp.Current.Variables = make(map[string]interface{})
+	resp.CurrentUnits.Variables = make(map[string]interface{})
+
+	omitValues := []string{"time", "interval"}
+	for name, value := range bareResp["current"].(map[string]interface{}) {
+		if slices.Contains(omitValues, name) {
+			continue
+		}
+
+		resp.Current.Variables[name] = value
+		resp.CurrentUnits.Variables[name] = bareResp["current_units"].(map[string]interface{})[name]
+	}
+
+	return &resp, nil
 }
