@@ -2,13 +2,8 @@ name: Build
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-  release:
-    types:
-      - published
-      - edited
+    tags:
+      - 'v*'
 
 permissions:
   contents: write
@@ -37,7 +32,7 @@ jobs:
         context: .
         push: true
         platforms: linux/amd64,linux/arm64
-        tags: thelande/openmeteo_exporter:latest
+        tags: thelande/openmeteo_exporter:${{ github.ref_name }}
   
   build-windows:
     runs-on: windows-2022
