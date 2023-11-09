@@ -43,9 +43,12 @@ func main() {
 	}
 
 	collector := OpenMeteoCollector{Client: &OpenMeteoClient{}, Locations: config.Locations}
-	prometheus.MustRegister(collector)
 
-	http.Handle("/metrics", promhttp.Handler())
+	// Use a custom handler to avoid generating the go_collector metrics.
+	registry := prometheus.NewRegistry()
+	registry.MustRegister(collector)
+	http.Handle("/metrics", promhttp.HandlerFor(registry, promhttp.HandlerOpts{}))
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte(`<html>
             <head>
