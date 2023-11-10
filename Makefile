@@ -27,7 +27,7 @@ crossbuild: promu
 	@echo ">> Running crossbuild"
 	GOARCH=amd64 $(PROMU) build --prefix=output/amd64
 	GOARCH=arm64 $(PROMU) build --prefix=output/arm64
-	ifeq ($(GOOS),windows)
+	ifeq ($(OS),Windows_NT)
 	GOARCH=arm   $(PROMU) build --prefix=output/386
 	else
 	GOARCH=arm   $(PROMU) build --prefix=output/arm
