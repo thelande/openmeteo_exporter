@@ -1,5 +1,5 @@
 go:
-  version: 1.18.0
+  version: 1.19.0
   cgo: false
 repository:
   path: github.com/thelande/openmeteo_exporter
@@ -24,8 +24,3 @@ crossbuild:
     - linux
     - darwin
     - windows
-    # - linux/amd64
-    # - darwin/amd64
-    # - windows/amd64
-    # - linux/arm
-    # - linux/arm64
