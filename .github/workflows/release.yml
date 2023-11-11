@@ -105,21 +105,21 @@ jobs:
           name: openmeteo_exporter_binaries
           path: output\openmeteo_exporter-*.exe
 
-      - name: Build Release Artifacts
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          $ErrorActionPreference = "Stop"
-          $BuildVersion = Get-Content VERSION
-          $TagName = $env:GITHUB_REF -replace 'refs/tags/', ''
-          # The MSI version is not semver compliant, so just take the numerical parts
-          $MSIVersion = $TagName -replace '^v?([0-9\.]+).*$','$1'
-          foreach($Arch in "amd64", "386") {
-            Write-Verbose "Building openmeteo_exporter $MSIVersion msi for $Arch"
-            .\installer\build.ps1 -PathToExecutable .\output\openmeteo_exporter-$BuildVersion-$Arch.exe -Version $MSIVersion -Arch "$Arch"
-            Move-Item installer\Output\openmeteo_exporter-$MSIVersion-$Arch.msi output\
-          }
+      # - name: Build Release Artifacts
+      #   if: startsWith(github.ref, 'refs/tags/')
+      #   run: |
+      #     $ErrorActionPreference = "Stop"
+      #     $BuildVersion = Get-Content VERSION
+      #     $TagName = $env:GITHUB_REF -replace 'refs/tags/', ''
+      #     # The MSI version is not semver compliant, so just take the numerical parts
+      #     $MSIVersion = $TagName -replace '^v?([0-9\.]+).*$','$1'
+      #     foreach($Arch in "amd64") {
+      #       Write-Verbose "Building openmeteo_exporter $MSIVersion msi for $Arch"
+      #       .\installer\build.ps1 -PathToExecutable .\output\openmeteo_exporter-$BuildVersion-$Arch.exe -Version $MSIVersion -Arch "$Arch"
+      #       Move-Item installer\Output\openmeteo_exporter-$MSIVersion-$Arch.msi output\
+      #     }
 
-          promu checksum output\
+      #     promu checksum output\
 
       - name: Release
         if: startsWith(github.ref, 'refs/tags/')
@@ -127,5 +127,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           $TagName = $env:GITHUB_REF -replace 'refs/tags/', ''
-          Get-ChildItem -Path output\* -Include @('openmeteo_exporter*.msi', 'openmeteo_exporter*.exe', 'sha256sums.txt') | Foreach-Object {gh release upload $TagName $_}
-          make push-all
+          Get-ChildItem -Path output\* -Include @('openmeteo_exporter*.exe', 'sha256sums.txt') | Foreach-Object {gh release upload $TagName $_}
