@@ -9,6 +9,14 @@ PROMTOOL         ?= $(FIRST_GOPATH)/bin/promtool
 DOCKER_IMAGE_NAME       ?= openmeteo-exporter
 MACH                    ?= $(shell uname -m)
 
+ifeq($(MACH),x86_64)
+ARCH := amd64
+else
+ifeq($(MACH),aarch64)
+ARCH := arm64
+endif
+endif
+
 STATICCHECK_IGNORE =
 
 PROMU_CONF := .promu.yml
@@ -17,7 +25,7 @@ PROMU := $(FIRST_GOPATH)/bin/promu --config $(PROMU_CONF)
 .PHONY: build
 build: promu openmeteo_exporter
 openmeteo_exporter: *.go
-	$(PROMU) build -v
+	$(PROMU) build --prefix=output
 
 fmt:
 	@echo ">> Running fmt"
