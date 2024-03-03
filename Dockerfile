@@ -21,7 +21,7 @@ RUN set -eux; \
     apk upgrade -v; \
     apk cache purge
 
-COPY --from=builder /src/openmeteo_exporter .
+COPY --from=builder --chmod=0755 /src/output/openmeteo_exporter .
 
 EXPOSE 9812
 
