@@ -16,6 +16,10 @@ FROM alpine:3.18.4
 LABEL maintainer="Tom Helander <thomas.helander@gmail.com>"
 
 WORKDIR /app
+RUN set -eux; \
+    apk update; \
+    apk upgrade -v; \
+    apk cache purge
 
 COPY --from=builder /src/openmeteo_exporter .
 
