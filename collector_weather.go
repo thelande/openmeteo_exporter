@@ -47,17 +47,30 @@ func (c WeatherCollector) Collect(ch chan<- prometheus.Metric) {
 
 	for _, name := range c.Location.Weather.Variables {
 		units := weatherResp.CurrentUnits.Variables[name]
+
+		// Convert the returned units to something Prometheus will accept.
 		if units == "°F" {
 			units = "fahrenheit"
 		} else if units == "°C" {
 			units = "celsius"
 		} else if units == "%" {
 			units = "percent"
+		} else if units == "wmo code" {
+			units = ""
 		}
 
 		description, _ := GetVariableDesc("weather", name)
+
+		// Omit the underscore separating the name and units if there are no units.
+		var fqname string
+		if units != "" {
+			fqname = prometheus.BuildFQName(namespace, "weather", fmt.Sprintf("%s_%s", name, units))
+		} else {
+			fqname = prometheus.BuildFQName(namespace, "weather", name)
+		}
+
 		desc := prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "weather", fmt.Sprintf("%s_%s", name, units)),
+			fqname,
 			description,
 			[]string{"location"},
 			nil,

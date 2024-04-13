@@ -8,6 +8,7 @@ locations:
       variables:
         - temperature_2m
         - relative_humidity_2m
+        - weather_code
     air_quality:
       variables:
         - pm2_5
@@ -20,6 +21,7 @@ locations:
       variables:
         - temperature_2m
         - relative_humidity_2m
+        - weather_code
     air_quality:
       variables:
         - pm2_5
@@ -35,6 +37,7 @@ locations:
       variables:
         - temperature_2m
         - relative_humidity_2m
+        - weather_code
     air_quality:
       variables:
         - pm2_5
