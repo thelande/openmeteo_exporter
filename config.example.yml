@@ -1,0 +1,41 @@
+---
+locations:
+  - name: San Francisco
+    latitude: 37.7577607
+    longitude: -122.4787995
+    timezone: America/Los_Angeles
+    weather:
+      variables:
+        - temperature_2m
+        - relative_humidity_2m
+    air_quality:
+      variables:
+        - pm2_5
+        - us_aqi
+  - name: New York
+    latitude: 40.6976312
+    longitude: -74.1444877
+    timezone: America/New_York
+    weather:
+      variables:
+        - temperature_2m
+        - relative_humidity_2m
+    air_quality:
+      variables:
+        - pm2_5
+        - us_aqi
+  - name: Nice
+    latitude: 43.4212
+    longitude: 7.1559
+    timezone: Europe/Paris
+    weather:
+      temperature_unit: celsius
+      wind_speed_unit: kmh
+      precipitation_unit: mm
+      variables:
+        - temperature_2m
+        - relative_humidity_2m
+    air_quality:
+      variables:
+        - pm2_5
+        - european_aqi
