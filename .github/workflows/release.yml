@@ -18,7 +18,7 @@ jobs:
   build_containers:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Login to Docker Hub
       uses: docker/login-action@v3
       with:
@@ -42,7 +42,7 @@ jobs:
   build_linux:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
       with:
@@ -56,7 +56,7 @@ jobs:
       shell: bash
 
     - name: Upload Artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: openmeteo_exporter_binaries
         path: output/openmeteo_exporter
@@ -72,12 +72,12 @@ jobs:
   build_windows:
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           # fetch-depth required for gitversion in `Build` step
           fetch-depth: 0
 
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v5
         with:
           go-version: '^1.21.1'
 
@@ -106,7 +106,7 @@ jobs:
           make crossbuild
           # '+' symbols are invalid characters in image tags
           (Get-Content -Path VERSION) -replace '\+', '_' | Set-Content -Path VERSION
-          
+
           # GH requires all files to have different names, so add version/arch to differentiate
           foreach($Arch in "amd64", "arm64") {
             Move-Item output\$Arch\openmeteo_exporter.exe output\openmeteo_exporter-$Version-$Arch.exe
