@@ -35,6 +35,21 @@ locations:
       variables:
         - pm2_5
         - us_aqi
+  - name: Nice
+    latitude: 43.4212
+    longitude: 7.1559
+    timezone: Europe/Paris
+    weather:
+      temperature_unit: celsius
+      wind_speed_unit: kmh
+      precipitation_unit: mm
+      variables:
+        - temperature_2m
+        - relative_humidity_2m
+    air_quality:
+      variables:
+        - pm2_5
+        - european_aqi
 ```
 
 Use the `--variables.list` option to list the available variables for either
@@ -56,6 +71,19 @@ Weather Variables
 +----------------------------+----------------------------------------------------------------------------------+
 ...
 ```
+
+### Unit Configuration
+
+The following units are used for the different fields:
+
+|Metric Type|Configuration Field|Default|Valid Options|
+|--|--|--|--|
+|Temperature|`temperature_unit`|`fahrenheit`|`fahrenheit`, `celsius`|
+|Wind Speed|`wind_speed_unit`|`mph`|`mph`, `kmh`, `ms`, `kn`|
+|Precipitation|`precipitation_unit`|`inch`|`inch`, `mm`|
+
+These may be changed via the configuration file in each location's `weather`
+section. See the example configuration file above for an example.
 
 ## Running
 
