@@ -116,7 +116,7 @@ var (
 		"us_aqi_carbon_monoxide":        "United States Air Quality Index (AQI) calculated for different particulate matter and gases individually. The consolidated us_aqi returns the maximum of all individual indices. Ranges from 0-50 (good), 51-100 (moderate), 101-150 (unhealthy for sensitive groups), 151-200 (unhealthy), 201-300 (very unhealthy) and 301-500 (hazardous).",
 	}
 	ValidTemperatureUnits   = []string{"fahrenheit", "celsius"}
-	ValidWindSpeedUnits     = []string{"kph", "mph", "ms", "kn"}
+	ValidWindSpeedUnits     = []string{"kmh", "mph", "ms", "kn"}
 	ValidPrecipitationUnits = []string{"mm", "inch"}
 )
 
