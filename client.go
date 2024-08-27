@@ -17,6 +17,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -35,7 +36,8 @@ const (
 // Mapping of variable name to description. Used to validate the list of
 // requests variables as well as provide descriptions for the metrics.
 var (
-	WeatherVariables = map[string]string{
+	ErrNon2XXResponse = errors.New("received non-2XX status")
+	WeatherVariables  = map[string]string{
 		"temperature_2m":             "Air temperature at 2 meters above ground",
 		"relative_humidity_2m":       "Relative humidity at 2 meters above ground",
 		"dew_point_2m":               "Dew point temperature at 2 meters above ground",
@@ -185,6 +187,11 @@ func (c OpenMeteoClient) doRequest(fullUrl string, values *url.Values) ([]byte, 
 	if err != nil {
 		level.Error(logger).Log("msg", "Failed to read response body", "err", err)
 		return nil, err
+	}
+
+	if resp.StatusCode >= 400 {
+		level.Warn(logger).Log("status", resp.Status, "statusCode", resp.StatusCode, "body", string(body))
+		return nil, ErrNon2XXResponse
 	}
 
 	return body, nil
